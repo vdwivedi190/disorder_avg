@@ -31,7 +31,7 @@ The basic workflow thus involves first editing the `genscript_*.jl` files with t
 ```bash 
 username@~> julia disoder_avg/genscriptCI.jl 
 ```
-then generates a directory within the current directory which contains a list of parameter values (in the text file `job_list.txt`) as well as subdirectories for data and logs. Once the joblist have been generated, the computation of Lyapunov exponent simply follows by a call to the corresponding `compute*.jl' file __from the job directory__. as  
+then generates a directory within the current directory which contains a list of parameter values (in the text file `job_list.txt`) as well as subdirectories for data and logs. Once the joblist have been generated, the computation of Lyapunov exponent simply follows by a call to the corresponding `compute*.jl' file _from the job directory_ as  
 ```bash 
 username@~> cd disoder_avg
 username@disoder_avg> julia ../runCI.jl 
