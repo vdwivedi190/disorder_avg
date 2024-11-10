@@ -23,17 +23,20 @@ We consider nanowires of three-dimensional time-reversal invariant topological i
 Usage
 -----
 
-The central function for this computation is `getLyapunovList` in the file `computeLyapunov.jl`, which computes the disorder-averaged Lyapunov exponents for a tight-binding Hamiltonian (described by the hopping matrix along the direction the transfer matrix acts in and the on-site matrix) for a given disorder type. The files `initialize*.jl` construct these matrices given system parameters for various physical systems (as described below). To scan over a set of parameters, one can instead use `run*.jl`, which take text files with a list of parameters, generate the relevant matrices by invoking `compute*.jl`, and finally calls `getLyapunovList`. The computation can alternatively be performed on a HPC cluster by calling `run*_cluster.jl` instead. 
+The central function for this computation is `getLyapunovList` in the file `src/computeLyapunov.jl`, which computes the disorder-averaged Lyapunov exponents for a tight-binding Hamiltonian (described by the hopping matrix along the direction the transfer matrix acts in and the on-site matrix) for a given disorder type. The files `src/compute*.jl` construct these matrices given system parameters for various physical systems (as described below). To scan over a set of parameters, one can instead use `src/run*.jl`, which take as input text files with a list of parameters, generate the relevant matrices by invoking `src/compute*.jl`, and finally calls `getLyapunovList`. The computation can alternatively be performed on a HPC cluster by calling `src/run*_cluster.jl` instead (although this was written with a specific cluster in mind). 
 
-The files `genscript*.jl` generate the directory structure where the final computations and log files are stored, as well as a text file `job_list.txt` with the list of parameters for which the disorder-averaging is to be performed. They also optionally create bash scripts that can be used to run the rest of the computation on a HPC cluster. The bash scripts are intended for the CHEOPS HPC cluster at University of Cologne, where this computation was performed. 
+The input text files can be generated from `genscript/genscript*.jl` by first setting the project name and requisite ranges for various system parameters therein. Running it then generates a directory with the project name (where the final computations and log files are stored) as well as a text file `job_list.txt`, which is intended as input to the `src/run*.jl` described above. The generating scripts also optionally create bash scripts that can be used to run the rest of the computation on a HPC cluster. The bash scripts are intended for the CHEOPS HPC cluster at University of Cologne, where this computation was performed. 
  
-The basic workflow thus involves first editing the `genscript_*.jl` files with the ranges for various parameters one is interested in, as described at the beginning of these files. Running it for CI (Chern Insulators), for instance, as   
+The basic workflow thus involves first editing the `genscript_*.jl` files with the ranges for various parameters one is interested in, as described at the beginning of these files. For instance, for CI (Chern Insulators), setting 
+```julia 
+projname = "proj_name"
+``` 
+inside `genscriptCI.jl` and then running it from the terminal as 
 ```bash 
-username@~> julia disoder_avg/genscriptCI.jl 
+username@~> julia disorder_avg/genscript/genscriptCI.jl  
 ```
-then generates a directory within the current directory which contains a list of parameter values (in the text file `job_list.txt`) as well as subdirectories for data and logs. Once the joblist have been generated, the computation of Lyapunov exponent simply follows by a call to the corresponding `compute*.jl' file __from the job directory__. as  
+then generates a directory named `proj_name` within the current directory containing a `job_list.txt` file. The computation of Lyapunov exponents then follows by a call to the corresponding `src/run*.jl` file with the directory created by `genscriptCI.jl` as input: 
 ```bash 
-username@~> cd disoder_avg
-username@disoder_avg> julia ../runCI.jl 
+username@~> julia disorder_avg/src/runCI.jl ./proj_name
 ```
 To run it on the cluster, one instead needs to first move the project folder to the location required by the cluster and run `runCI_cluster.jl`. The final data can be imported and plotted from the files `projname/lyaps/l_*.txt`. 
